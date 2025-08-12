@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Gaydar — Totally Scientific™ Phone App</title>
+  <meta name="theme-color" content="#111827" />
+  <style>
+    :root {
+      --bg: radial-gradient(1200px 800px at 50% -10%, #1f2937, #0b1220 60%, #05080f 100%);
+      --glass: rgba(255,255,255,0.06);
+      --glass-2: rgba(255,255,255,0.12);
+      --accent: #60a5fa;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color: #e5e7eb; background: var(--bg); -webkit-tap-highlight-color: transparent;
+    }
+    .wrap {
+      min-height: 100%; padding: env(safe-area-inset-top) 16px calc(16px + env(safe-area-inset-bottom));
+      display: grid; grid-template-rows: auto 1fr auto; max-width: 520px; margin: 0 auto;
+    }
+    header { display:flex; align-items:center; justify-content:space-between; gap:12px; padding: 18px 4px 8px; }
+    .brand { font-weight: 800; letter-spacing: .2px; font-size: 20px; }
+    .badge { font-size: 11px; opacity:.8; padding:4px 8px; border-radius:999px; background:var(--glass); border:1px solid rgba(255,255,255,.08)}
+
+    .card { background: var(--glass); border: 1px solid rgba(255,255,255,.08); border-radius: 18px; padding: 18px; backdrop-filter: blur(8px); box-shadow: 0 8px 30px rgba(0,0,0,.35); }
+    .center { display:grid; place-items:center; text-align:center; }
+
+    .cta { appearance:none; border:0; border-radius: 14px; padding: 16px 18px; font-weight: 800; font-size: 18px; letter-spacing:.3px; width: 100%; cursor:pointer; color:#0b1220; background: linear-gradient(90deg, #22d3ee, #a78bfa, #fb7185); box-shadow: 0 8px 24px rgba(0,0,0,.35); }
+    .cta:active { transform: translateY(1px); }
+
+    .hint { font-size: 12px; opacity: .7; margin-top: 10px; }
+
+    /* Scanner */
+    #scan { display:none; }
+    .radar {
+      width: 240px; height: 240px; border-radius: 50%; position: relative; overflow: hidden;
+      background: radial-gradient(#1a2a44 25%, #0f2038 60%, #0b1729 100%);
+      border: 2px solid rgba(255,255,255,.08);
+      box-shadow: inset 0 0 40px rgba(0,0,0,.5), 0 12px 40px rgba(0,0,0,.35);
+      margin: 8px auto 16px;
+    }
+    .gridline { position:absolute; inset:0; border-radius:50%; border:1px dashed rgba(255,255,255,.10); }
+    .gridline.gl2 { width: 70%; height: 70%; left:15%; top:15%; }
+    .gridline.gl3 { width: 40%; height: 40%; left:30%; top:30%; }
+    .sweep {
+      position:absolute; width:50%; height: 50%; left:50%; top:50%; transform-origin:0 100%;
+      background: conic-gradient(from 0deg, rgba(96,165,250,.35), rgba(96,165,250,0) 60%);
+      animation: spin 2.4s linear infinite;
+      filter: drop-shadow(0 0 12px rgba(96,165,250,.55));
+      border-top-left-radius: 200px;
+    }
+    @keyframes spin { to { transform: rotate(360deg) translateZ(0); } }
+
+    .scan-msg { min-height: 52px; font-size:14px; opacity:.9; }
+    .progress { height: 8px; background: rgba(255,255,255,.1); border-radius: 999px; overflow: hidden; }
+    .bar { height: 100%; width:0%; background: linear-gradient(90deg, #22d3ee, #a78bfa, #fb7185); transition: width .25s ease; }
+
+    /* Result */
+    #result { display:none; }
+    .rainbow {
+      font-size: 40px; font-weight: 900; line-height:1.1; margin: 6px 0 10px;
+      background: conic-gradient(from 180deg, #ef4444, #f59e0b, #22c55e, #06b6d4, #3b82f6, #a855f7, #ef4444);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      text-shadow: 0 2px 22px rgba(255,255,255,0.08);
+    }
+    .sub { font-size: 14px; opacity: .85; }
+
+    .row { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
+    .btn {
+      appearance:none; border:1px solid rgba(255,255,255,.12); color:#e5e7eb; background: var(--glass);
+      padding: 12px 14px; border-radius: 12px; font-weight: 700; cursor: pointer;
+    }
+    .btn:active { transform: translateY(1px); }
+
+    details { margin-top: 14px; }
+    summary { cursor: pointer; list-style: none; }
+    summary::-webkit-details-marker { display:none }
+    .field { display:flex; gap:8px; align-items:center; margin: 10px 0 8px; }
+    .input { flex:1; padding: 12px; border-radius: 12px; border:1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.06); color:#e5e7eb; }
+
+    iframe { width: 100%; aspect-ratio: 16/9; border:0; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+
+    /* Meme GIF */
+    .meme-gif { width: 100%; height: auto; border-radius: 12px; margin-top: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+
+    footer { font-size: 11px; opacity:.7; padding: 18px 6px; text-align: center; }
+
+    /* Confetti */
+    .confetti { position: fixed; top: -12px; width: 10px; height: 14px; will-change: transform, opacity; pointer-events: none; z-index: 50; opacity: 0.9; }
+    @keyframes drop {
+      0% { transform: translateY(-10vh) rotate(0deg); opacity:1; }
+      100% { transform: translateY(110vh) rotate(720deg); opacity:.9; }
+    }
+
+    /* Small devices tweaks */
+    @media (max-width: 380px) {
+      .rainbow { font-size: 34px; }
+      .radar { width: 200px; height:200px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">🌈 Gaydar</div>
+      <div class="badge">Totally Scientific™</div>
+    </header>
+
+    <main>
+      <!-- HOME -->
+      <section id="home" class="card center" aria-labelledby="title-home">
+        <h1 id="title-home" style="margin:6px 0 8px; font-size:22px;">Are you… ready?</h1>
+        <p class="sub" style="margin:0 0 14px">Tap below to begin the extremely serious scan.</p>
+        <button id="startBtn" class="cta">Start Scan</button>
+        <div class="hint">Optimised for phones • Vibration + sound on</div>
+      </section>
+
+      <!-- SCAN -->
+      <section id="scan" class="card center" aria-live="polite" aria-busy="true">
+        <div class="radar" role="img" aria-label="Scanning radar animation">
+          <div class="gridline"></div>
+          <div class="gridline gl2"></div>
+          <div class="gridline gl3"></div>
+          <div class="sweep"></div>
+        </div>
+        <div id="scanMsg" class="scan-msg">Calibrating fabulousness…</div>
+        <div class="progress" aria-label="scan progress"><div id="bar" class="bar"></div></div>
+      </section>
+
+      <!-- RESULT -->
+      <section id="result" class="card center" aria-labelledby="title-result">
+        <h2 id="title-result" class="rainbow">YOU ARE GAY 🏳️‍🌈</h2>
+        <div class="sub">Consensus reached by our panel of imaginary scientists.</div>
+        <!-- Fixed GIF at end -->
+        <img id="endGif" class="meme-gif" src="https://raw.githubusercontent.com/Lubo84/RetireWise-Images/main/gif.gif" data-loop="2100" alt="You Are Gay meme" loading="lazy" decoding="async" />
+        <div class="hint">Using hosted GIF from GitHub (raw) — update the URL above if you move it.</div>
+        <div class="row">
+          <button id="beepBtn" class="btn" title="Play a beep each GIF loop">🔊 Beep</button>
+          <button id="againBtn" class="btn">Run Again</button>
+          <button id="shareBtn" class="btn">Share</button>
+          <button id="copyBtn" class="btn">Copy Result</button>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      This is a light‑hearted, queer‑positive joke app. Sexual orientation isn’t something to “detect”. Be kind. 💖
+    </footer>
+  </div>
+
+  <script>
+    // Compact DOM helpers
+    function $(sel){ return document.querySelector(sel); }
+
+    const home = $('#home');
+    const scan = $('#scan');
+    const result = $('#result');
+    const startBtn = $('#startBtn');
+    const againBtn = $('#againBtn');
+    const shareBtn = $('#shareBtn');
+    const copyBtn = $('#copyBtn');
+    const bar = $('#bar');
+    const scanMsg = $('#scanMsg');
+    const endGif = $('#endGif');
+    const beepBtn = $('#beepBtn');
+
+    var ctx = null; // WebAudio (use var for older engines)
+
+    function ensureAudio(){
+      try {
+        if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+        if (ctx && ctx.state === 'suspended' && ctx.resume) ctx.resume();
+      } catch(e) { /* ignore */ }
+    }
+
+    var messages = [
+      'Consulting the auntie network…',
+      'Measuring sparkle radius…',
+      'Counting how many times you said “yas” this week…',
+      'Cross-checking playlist for Gaga, Bey, and Kylie…',
+      'Calibrating rainbow spectrum…',
+      'Running totally-not-science…',
+      'Sampling fabulousness…',
+      'Verifying with a panel of drag queens…'
+    ];
+
+    function vibrate(pattern){ if (navigator.vibrate) navigator.vibrate(pattern); }
+
+    function beep(ms, freq){
+      ms = ms || 120; freq = freq || 880;
+      try {
+        ensureAudio();
+        var o = ctx.createOscillator();
+        var g = ctx.createGain();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(freq, ctx.currentTime);
+        o.connect(g); g.connect(ctx.destination);
+        g.gain.setValueAtTime(0.001, ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + 0.01);
+        o.start();
+        setTimeout(function(){
+          g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.02);
+          o.stop(ctx.currentTime + 0.03);
+        }, ms);
+      } catch(e) { /* ignore */ }
+    }
+
+    function show(el){ el.style.display = 'grid'; }
+    function hide(el){ el.style.display = 'none'; }
+
+    function confetti(count){
+      count = count || 80;
+      for(var i=0;i<count;i++){
+        var piece = document.createElement('i');
+        piece.className = 'confetti';
+        var size = 6 + Math.random()*8;
+        piece.style.width = size+'px';
+        piece.style.height = (size*1.4)+'px';
+        piece.style.left = (Math.random()*100)+'vw';
+        piece.style.background = 'hsl(' + (Math.random()*360) + ', 90%, 60%)';
+        piece.style.animation = 'drop ' + (3+Math.random()*2) + 's linear ' + (Math.random()*0.6) + 's forwards';
+        document.body.appendChild(piece);
+        setTimeout(function(p){ return function(){ p.remove(); }; }(piece), 6000);
+      }
+    }
+
+    // ——— Beep loop synced to GIF (approx) ———
+    var beepTimer = null;
+    function getLoopMs(){
+      if (!endGif) return 2100;
+      var v = parseInt(endGif.getAttribute('data-loop'), 10);
+      return (isFinite(v) && v > 300) ? v : 2100;
+    }
+    function startBeepLoop(){
+      stopBeepLoop();
+      beep(90, 800);
+      beepTimer = setInterval(function(){ beep(90, 800); }, getLoopMs());
+      if (beepBtn) beepBtn.textContent = '🔇 Stop Beep';
+    }
+    function stopBeepLoop(){
+      if (beepTimer){ clearInterval(beepTimer); beepTimer = null; }
+      if (beepBtn) beepBtn.textContent = '🔊 Beep';
+    }
+
+    function startScan(){
+      ensureAudio();
+      hide(home); hide(result); show(scan);
+      vibrate([30, 40, 30]);
+      var idx = 0; var prog = 0;
+      scanMsg.textContent = messages[0];
+      bar.style.width = '0%';
+
+      var timer = null;
+      function step(){
+        prog = Math.min(100, prog + (100 / 12));
+        bar.style.width = prog + '%';
+        scanMsg.textContent = messages[idx % messages.length];
+        beep(90, 500 + Math.random()*600);
+        idx++;
+        if (prog >= 100) return finish();
+        timer = setTimeout(step, 420 + Math.random()*320);
+      }
+      timer = setTimeout(step, 400);
+
+      function finish(){
+        hide(scan); show(result); confetti(90); vibrate([20,30,20,30,50]);
+        startBeepLoop();
+        try { if (document.startViewTransition) document.startViewTransition(function(){}); } catch(e){}
+      }
+    }
+
+    function share(){
+      var text = 'Gaydar result: YOU ARE GAY 🏳️‍🌈 (a totally scientific joke)';
+      if (navigator.share) {
+        navigator.share({ title: 'Gaydar', text: text, url: location.href }).catch(function(){});
+      } else {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text + ' ' + location.href);
+        }
+        alert('Result copied. Paste it anywhere!');
+      }
+    }
+
+    function copy(){
+      var text = 'YOU ARE GAY 🏳️‍🌈 — from Gaydar (joke app)';
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text);
+      alert('Copied to clipboard.');
+    }
+
+    if (startBtn) startBtn.addEventListener('click', startScan);
+    if (againBtn) againBtn.addEventListener('click', function(){ stopBeepLoop(); show(home); hide(result); });
+    if (shareBtn) shareBtn.addEventListener('click', share);
+    if (copyBtn) copyBtn.addEventListener('click', copy);
+    if (beepBtn) beepBtn.addEventListener('click', function(){ beepTimer ? stopBeepLoop() : startBeepLoop(); });
+  </script>
+</body>
+</html>
