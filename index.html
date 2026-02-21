@@ -3,107 +3,254 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Gaydar — Totally Scientific™ Phone App</title>
-  <meta name="theme-color" content="#111827" />
+  <title>Gaydar — Totally Scientific™</title>
+  <meta name="theme-color" content="#0b0e1a" />
   <style>
     :root {
-      --bg: radial-gradient(1200px 800px at 50% -10%, #1f2937, #0b1220 60%, #05080f 100%);
-      --glass: rgba(255,255,255,0.06);
-      --glass-2: rgba(255,255,255,0.12);
-      --accent: #60a5fa;
+      --bg-from: #0d0f1e;
+      --bg-to: #050710;
+      --glass: rgba(255,255,255,0.055);
+      --glass-2: rgba(255,255,255,0.11);
+      --border: rgba(255,255,255,0.09);
+      --text: #e8eaf6;
+      --muted: rgba(232,234,246,0.65);
+      --radius: 20px;
     }
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; }
+
     body {
-      margin: 0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      color: #e5e7eb; background: var(--bg); -webkit-tap-highlight-color: transparent;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji";
+      color: var(--text);
+      background: var(--bg-from);
+      -webkit-tap-highlight-color: transparent;
+      overflow-x: hidden;
     }
+
+    /* Animated aurora background */
+    .aurora {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background: radial-gradient(ellipse 80% 60% at 20% -10%, rgba(139,92,246,0.22) 0%, transparent 65%),
+                  radial-gradient(ellipse 60% 50% at 80% 110%, rgba(236,72,153,0.18) 0%, transparent 60%),
+                  radial-gradient(ellipse 70% 60% at 50% 50%, rgba(6,182,212,0.10) 0%, transparent 70%),
+                  linear-gradient(160deg, #0d0f1e 0%, #07091a 50%, #050710 100%);
+      animation: auroraShift 12s ease-in-out infinite alternate;
+    }
+    @keyframes auroraShift {
+      0%   { filter: hue-rotate(0deg) brightness(1); }
+      50%  { filter: hue-rotate(25deg) brightness(1.08); }
+      100% { filter: hue-rotate(-15deg) brightness(0.95); }
+    }
+
     .wrap {
-      min-height: 100%; padding: env(safe-area-inset-top) 16px calc(16px + env(safe-area-inset-bottom));
-      display: grid; grid-template-rows: auto 1fr auto; max-width: 520px; margin: 0 auto;
+      position: relative; z-index: 1;
+      min-height: 100%;
+      padding: env(safe-area-inset-top, 0) 16px calc(16px + env(safe-area-inset-bottom, 0));
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      max-width: 520px;
+      margin: 0 auto;
     }
-    header { display:flex; align-items:center; justify-content:space-between; gap:12px; padding: 18px 4px 8px; }
-    .brand { font-weight: 800; letter-spacing: .2px; font-size: 20px; }
-    .badge { font-size: 11px; opacity:.8; padding:4px 8px; border-radius:999px; background:var(--glass); border:1px solid rgba(255,255,255,.08)}
 
-    .card { background: var(--glass); border: 1px solid rgba(255,255,255,.08); border-radius: 18px; padding: 18px; backdrop-filter: blur(8px); box-shadow: 0 8px 30px rgba(0,0,0,.35); }
-    .center { display:grid; place-items:center; text-align:center; }
-
-    .cta { appearance:none; border:0; border-radius: 14px; padding: 16px 18px; font-weight: 800; font-size: 18px; letter-spacing:.3px; width: 100%; cursor:pointer; color:#0b1220; background: linear-gradient(90deg, #22d3ee, #a78bfa, #fb7185); box-shadow: 0 8px 24px rgba(0,0,0,.35); }
-    .cta:active { transform: translateY(1px); }
-
-    .hint { font-size: 12px; opacity: .7; margin-top: 10px; }
-
-    /* Scanner */
-    #scan { display:none; }
-    .radar {
-      width: 240px; height: 240px; border-radius: 50%; position: relative; overflow: hidden;
-      background: radial-gradient(#1a2a44 25%, #0f2038 60%, #0b1729 100%);
-      border: 2px solid rgba(255,255,255,.08);
-      box-shadow: inset 0 0 40px rgba(0,0,0,.5), 0 12px 40px rgba(0,0,0,.35);
-      margin: 8px auto 16px;
+    /* ── Header ── */
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 22px 4px 10px;
     }
-    .gridline { position:absolute; inset:0; border-radius:50%; border:1px dashed rgba(255,255,255,.10); }
-    .gridline.gl2 { width: 70%; height: 70%; left:15%; top:15%; }
-    .gridline.gl3 { width: 40%; height: 40%; left:30%; top:30%; }
-    .sweep {
-      position:absolute; width:50%; height: 50%; left:50%; top:50%; transform-origin:0 100%;
-      background: conic-gradient(from 0deg, rgba(96,165,250,.35), rgba(96,165,250,0) 60%);
-      animation: spin 2.4s linear infinite;
-      filter: drop-shadow(0 0 12px rgba(96,165,250,.55));
-      border-top-left-radius: 200px;
-    }
-    @keyframes spin { to { transform: rotate(360deg) translateZ(0); } }
-
-    .scan-msg { min-height: 52px; font-size:14px; opacity:.9; }
-    .progress { height: 8px; background: rgba(255,255,255,.1); border-radius: 999px; overflow: hidden; }
-    .bar { height: 100%; width:0%; background: linear-gradient(90deg, #22d3ee, #a78bfa, #fb7185); transition: width .25s ease; }
-
-    /* Result */
-    #result { display:none; }
-    .rainbow {
-      font-size: 40px; font-weight: 900; line-height:1.1; margin: 6px 0 10px;
-      background: conic-gradient(from 180deg, #ef4444, #f59e0b, #22c55e, #06b6d4, #3b82f6, #a855f7, #ef4444);
+    .brand {
+      font-size: 22px; font-weight: 900; letter-spacing: -0.3px;
+      background: linear-gradient(90deg, #f472b6, #a78bfa, #38bdf8);
       -webkit-background-clip: text; background-clip: text; color: transparent;
-      text-shadow: 0 2px 22px rgba(255,255,255,0.08);
     }
-    .sub { font-size: 14px; opacity: .85; }
+    .badge {
+      font-size: 11px; font-weight: 600; letter-spacing: .4px;
+      padding: 5px 10px; border-radius: 999px;
+      background: var(--glass-2); border: 1px solid var(--border);
+      color: var(--muted);
+    }
 
-    .row { display:flex; gap:10px; flex-wrap:wrap; margin-top:14px; }
-    .btn {
-      appearance:none; border:1px solid rgba(255,255,255,.12); color:#e5e7eb; background: var(--glass);
-      padding: 12px 14px; border-radius: 12px; font-weight: 700; cursor: pointer;
+    /* ── Card ── */
+    .card {
+      background: var(--glass);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px 20px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      box-shadow: 0 8px 40px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.06);
     }
+    .center { display: grid; place-items: center; text-align: center; }
+
+    /* ── Name input screen ── */
+    #home h1 { font-size: 24px; font-weight: 800; margin-bottom: 6px; letter-spacing: -0.3px; }
+    #home p  { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
+
+    .input-wrap { width: 100%; position: relative; margin-bottom: 16px; }
+    .name-input {
+      width: 100%; padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.07);
+      color: var(--text);
+      font-size: 17px; font-weight: 600; text-align: center;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .name-input::placeholder { color: rgba(255,255,255,0.3); font-weight: 400; }
+    .name-input:focus {
+      border-color: rgba(167,139,250,0.6);
+      box-shadow: 0 0 0 3px rgba(167,139,250,0.18);
+    }
+
+    .cta {
+      appearance: none; border: 0;
+      border-radius: 14px; padding: 16px 20px;
+      font-weight: 800; font-size: 18px; letter-spacing: .2px;
+      width: 100%; cursor: pointer; color: #05070f;
+      background: linear-gradient(90deg, #22d3ee 0%, #a78bfa 50%, #f472b6 100%);
+      background-size: 200% 100%;
+      box-shadow: 0 6px 28px rgba(167,139,250,0.35);
+      transition: transform .12s, box-shadow .12s, background-position .4s;
+    }
+    .cta:hover  { background-position: 100% 0; box-shadow: 0 8px 32px rgba(167,139,250,0.5); }
+    .cta:active { transform: translateY(1px); box-shadow: 0 3px 16px rgba(167,139,250,0.3); }
+    .hint { font-size: 12px; color: var(--muted); margin-top: 12px; }
+
+    /* ── Scan screen ── */
+    #scan  { display: none; }
+    #result { display: none; }
+
+    .radar {
+      width: 220px; height: 220px;
+      border-radius: 50%; position: relative; overflow: hidden;
+      background: radial-gradient(circle, #15274a 0%, #0d1e38 55%, #080f22 100%);
+      border: 1.5px solid rgba(96,165,250,0.25);
+      box-shadow: 0 0 0 6px rgba(96,165,250,0.06),
+                  inset 0 0 60px rgba(0,0,0,0.55),
+                  0 14px 50px rgba(0,0,0,0.4);
+      margin: 4px auto 18px;
+    }
+    .ring {
+      position: absolute; border-radius: 50%;
+      border: 1px solid rgba(96,165,250,0.13);
+    }
+    .ring-1 { inset: 0; }
+    .ring-2 { inset: 15%; }
+    .ring-3 { inset: 30%; }
+    .ring-4 { inset: 45%; }
+    .crosshair-h, .crosshair-v {
+      position: absolute; background: rgba(96,165,250,0.1);
+    }
+    .crosshair-h { height: 1px; left: 0; right: 0; top: 50%; }
+    .crosshair-v { width: 1px; top: 0; bottom: 0; left: 50%; }
+
+    .sweep {
+      position: absolute; width: 50%; height: 50%; left: 50%; top: 50%;
+      transform-origin: 0 100%;
+      background: conic-gradient(from 0deg, rgba(96,165,250,0), rgba(96,165,250,0.45) 60%);
+      animation: spin 2.2s linear infinite;
+      filter: drop-shadow(0 0 10px rgba(96,165,250,0.6));
+      border-top-left-radius: 300px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Blip dots */
+    .blip {
+      position: absolute; border-radius: 50%;
+      background: #60a5fa;
+      box-shadow: 0 0 8px 3px rgba(96,165,250,0.7);
+      animation: blipFade 2.4s ease-out infinite;
+      pointer-events: none;
+    }
+    @keyframes blipFade {
+      0%   { opacity: 0; }
+      30%  { opacity: 1; }
+      100% { opacity: 0.2; }
+    }
+
+    .scan-msg {
+      font-size: 14px; color: var(--muted);
+      min-height: 48px; line-height: 1.5;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 12px;
+    }
+    .progress { height: 6px; background: rgba(255,255,255,0.08); border-radius: 999px; overflow: hidden; }
+    .bar      { height: 100%; width: 0%; background: linear-gradient(90deg, #22d3ee, #a78bfa, #f472b6); transition: width .25s ease; border-radius: 999px; }
+
+    /* ── Result screen ── */
+    .result-emoji {
+      font-size: 52px; line-height: 1;
+      margin-bottom: 10px;
+      filter: drop-shadow(0 4px 20px rgba(255,255,255,0.2));
+      animation: popIn .4s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    @keyframes popIn {
+      from { transform: scale(0.4); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+
+    .result-title {
+      font-size: 36px; font-weight: 900; line-height: 1.1;
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+    .result-sub  { font-size: 14px; color: var(--muted); margin-bottom: 16px; line-height: 1.5; }
+    .result-verdict {
+      font-size: 13px; font-weight: 600; letter-spacing: .4px;
+      padding: 6px 14px; border-radius: 999px;
+      display: inline-block; margin-bottom: 14px;
+    }
+
+    .meme-gif {
+      width: 100%; border-radius: 14px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+      margin-bottom: 16px;
+    }
+
+    .share-card-wrap { margin: 12px 0; }
+    #shareCanvas { width: 100%; border-radius: 14px; display: block; cursor: pointer; box-shadow: 0 8px 30px rgba(0,0,0,0.4); }
+    .share-hint { font-size: 11px; color: var(--muted); margin-top: 6px; }
+
+    .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+    .btn {
+      appearance: none;
+      border: 1px solid var(--border);
+      color: var(--text);
+      background: var(--glass-2);
+      padding: 11px 14px;
+      border-radius: 12px;
+      font-weight: 700; font-size: 13px;
+      cursor: pointer;
+      transition: background .15s, transform .1s, box-shadow .15s;
+      flex: 1; min-width: 80px;
+    }
+    .btn:hover  { background: rgba(255,255,255,0.16); box-shadow: 0 3px 14px rgba(0,0,0,0.2); }
     .btn:active { transform: translateY(1px); }
 
-    details { margin-top: 14px; }
-    summary { cursor: pointer; list-style: none; }
-    summary::-webkit-details-marker { display:none }
-    .field { display:flex; gap:8px; align-items:center; margin: 10px 0 8px; }
-    .input { flex:1; padding: 12px; border-radius: 12px; border:1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.06); color:#e5e7eb; }
-
-    iframe { width: 100%; aspect-ratio: 16/9; border:0; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
-
-    /* Meme GIF */
-    .meme-gif { width: 100%; height: auto; border-radius: 12px; margin-top: 12px; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
-
-    footer { font-size: 11px; opacity:.7; padding: 18px 6px; text-align: center; }
-
-    /* Confetti */
-    .confetti { position: fixed; top: -12px; width: 10px; height: 14px; will-change: transform, opacity; pointer-events: none; z-index: 50; opacity: 0.9; }
-    @keyframes drop {
-      0% { transform: translateY(-10vh) rotate(0deg); opacity:1; }
-      100% { transform: translateY(110vh) rotate(720deg); opacity:.9; }
+    footer {
+      font-size: 11px; color: var(--muted);
+      padding: 20px 6px; text-align: center; line-height: 1.6;
     }
 
-    /* Small devices tweaks */
+    /* Confetti */
+    .confetti {
+      position: fixed; top: -14px; border-radius: 2px;
+      will-change: transform, opacity; pointer-events: none; z-index: 100;
+    }
+    @keyframes drop {
+      0%   { transform: translateY(-5vh) rotate(0deg) scale(1);  opacity: 1; }
+      85%  { opacity: 1; }
+      100% { transform: translateY(108vh) rotate(780deg) scale(0.8); opacity: 0; }
+    }
+
     @media (max-width: 380px) {
-      .rainbow { font-size: 34px; }
-      .radar { width: 200px; height:200px; }
+      .result-title { font-size: 30px; }
+      .radar { width: 185px; height: 185px; }
     }
   </style>
 </head>
 <body>
+  <div class="aurora" aria-hidden="true"></div>
   <div class="wrap">
     <header>
       <div class="brand">🌈 Gaydar</div>
@@ -111,191 +258,493 @@
     </header>
 
     <main>
+
       <!-- HOME -->
       <section id="home" class="card center" aria-labelledby="title-home">
-        <h1 id="title-home" style="margin:6px 0 8px; font-size:22px;">Are you… ready?</h1>
-        <p class="sub" style="margin:0 0 14px">Tap below to begin the extremely serious scan.</p>
-        <button id="startBtn" class="cta">Start Scan</button>
-        <div class="hint">Optimised for phones • Vibration + sound on</div>
+        <h1 id="title-home">Ready for your reading?</h1>
+        <p>Enter your name for a <em>fully personalised</em> gaydar scan. Powered by imaginary science.</p>
+        <div class="input-wrap">
+          <input id="nameInput" class="name-input" type="text" maxlength="28"
+                 placeholder="Your name (optional)" autocomplete="off" autocorrect="off"
+                 spellcheck="false" enterkeyhint="go" />
+        </div>
+        <button id="startBtn" class="cta">✨ Start Scan</button>
+        <div class="hint">Works best on mobile • sound &amp; vibration on</div>
       </section>
 
       <!-- SCAN -->
       <section id="scan" class="card center" aria-live="polite" aria-busy="true">
-        <div class="radar" role="img" aria-label="Scanning radar animation">
-          <div class="gridline"></div>
-          <div class="gridline gl2"></div>
-          <div class="gridline gl3"></div>
+        <div class="radar" role="img" aria-label="Scanning radar">
+          <div class="ring ring-1"></div>
+          <div class="ring ring-2"></div>
+          <div class="ring ring-3"></div>
+          <div class="ring ring-4"></div>
+          <div class="crosshair-h"></div>
+          <div class="crosshair-v"></div>
           <div class="sweep"></div>
+          <!-- Blip dots injected by JS -->
         </div>
         <div id="scanMsg" class="scan-msg">Calibrating fabulousness…</div>
-        <div class="progress" aria-label="scan progress"><div id="bar" class="bar"></div></div>
+        <div class="progress" aria-label="scan progress">
+          <div id="bar" class="bar"></div>
+        </div>
       </section>
 
       <!-- RESULT -->
       <section id="result" class="card center" aria-labelledby="title-result">
-        <h2 id="title-result" class="rainbow">YOU ARE GAY 🏳️‍🌈</h2>
-        <div class="sub">Consensus reached by our panel of imaginary scientists.</div>
-        <!-- Fixed GIF at end -->
-        <img id="endGif" class="meme-gif" src="https://raw.githubusercontent.com/Lubo84/RetireWise-Images/main/gif.gif" data-loop="2100" alt="You Are Gay meme" loading="lazy" decoding="async" />
-        <div class="hint">Using hosted GIF from GitHub (raw) — update the URL above if you move it.</div>
+        <div id="resultEmoji" class="result-emoji">🌈</div>
+        <h2 id="title-result" class="result-title">YOU ARE GAY</h2>
+        <div id="resultVerdict" class="result-verdict"></div>
+        <div id="resultSub" class="result-sub">Consensus reached by our panel of imaginary scientists.</div>
+        <img id="endGif" class="meme-gif"
+             src="https://raw.githubusercontent.com/Lubo84/RetireWise-Images/main/gif.gif"
+             data-loop="2100" alt="reaction GIF" loading="lazy" decoding="async" />
+
+        <!-- Shareable card -->
+        <div class="share-card-wrap">
+          <canvas id="shareCanvas" width="600" height="300" title="Tap to download your result card"></canvas>
+          <div class="share-hint">👆 Tap the card to download &amp; share</div>
+        </div>
+
         <div class="row">
-          <button id="beepBtn" class="btn" title="Play a beep each GIF loop">🔊 Beep</button>
-          <button id="againBtn" class="btn">Run Again</button>
-          <button id="shareBtn" class="btn">Share</button>
-          <button id="copyBtn" class="btn">Copy Result</button>
+          <button id="beepBtn"  class="btn">🔊 Beep</button>
+          <button id="againBtn" class="btn">🔄 Again</button>
+          <button id="shareBtn" class="btn">📤 Share</button>
+          <button id="copyBtn"  class="btn">📋 Copy</button>
         </div>
       </section>
+
     </main>
 
     <footer>
-      This is a light‑hearted, queer‑positive joke app. Sexual orientation isn’t something to “detect”. Be kind. 💖
+      This is a light‑hearted, queer‑positive joke app.<br>
+      Sexual orientation isn't something to "detect". Be kind. 💖
     </footer>
   </div>
 
   <script>
-    // Compact DOM helpers
-    function $(sel){ return document.querySelector(sel); }
+  (function () {
+    'use strict';
 
-    const home = $('#home');
-    const scan = $('#scan');
-    const result = $('#result');
-    const startBtn = $('#startBtn');
-    const againBtn = $('#againBtn');
-    const shareBtn = $('#shareBtn');
-    const copyBtn = $('#copyBtn');
-    const bar = $('#bar');
-    const scanMsg = $('#scanMsg');
-    const endGif = $('#endGif');
-    const beepBtn = $('#beepBtn');
-
-    var ctx = null; // WebAudio (use var for older engines)
-
-    function ensureAudio(){
-      try {
-        if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
-        if (ctx && ctx.state === 'suspended' && ctx.resume) ctx.resume();
-      } catch(e) { /* ignore */ }
-    }
-
-    var messages = [
-      'Consulting the auntie network…',
-      'Measuring sparkle radius…',
-      'Counting how many times you said “yas” this week…',
-      'Cross-checking playlist for Gaga, Bey, and Kylie…',
-      'Calibrating rainbow spectrum…',
-      'Running totally-not-science…',
-      'Sampling fabulousness…',
-      'Verifying with a panel of drag queens…'
+    /* ─── Results ─────────────────────────────────────────── */
+    var RESULTS = [
+      {
+        title: 'CERTIFIED GAY',
+        emoji: '🌈',
+        sub: 'The rainbow gods have spoken. Undeniably, spectacularly gay.',
+        gradient: ['#f472b6','#a78bfa'],
+        verdictBg: 'rgba(244,114,182,0.2)',
+        verdictColor: '#f9a8d4',
+        verdict: '🏅 Gold-tier Gay',
+        gif: 'https://raw.githubusercontent.com/Lubo84/RetireWise-Images/main/gif.gif'
+      },
+      {
+        title: 'EXTREMELY GAY',
+        emoji: '💅',
+        sub: 'The readings were off the charts. Our scientists needed a lie-down.',
+        gradient: ['#a78bfa','#60a5fa'],
+        verdictBg: 'rgba(167,139,250,0.2)',
+        verdictColor: '#c4b5fd',
+        verdict: '🔮 Spectacularly Queer',
+        gif: 'https://raw.githubusercontent.com/Lubo84/RetireWise-Images/main/gif.gif'
+      },
+      {
+        title: 'A LITTLE GAY',
+        emoji: '✨',
+        sub: 'Mild sparkle detected. Fabulousness levels: elevated.',
+        gradient: ['#34d399','#60a5fa'],
+        verdictBg: 'rgba(52,211,153,0.2)',
+        verdictColor: '#6ee7b7',
+        verdict: '🌿 Softly Queer',
+        gif: 'https://raw.githubusercontent.com/Lubo84/RetireWise-Images/main/gif.gif'
+      },
+      {
+        title: 'QUESTIONING',
+        emoji: '🤔',
+        sub: 'Readings were inconclusive. The jury is still out — and having a great time.',
+        gradient: ['#fbbf24','#f87171'],
+        verdictBg: 'rgba(251,191,36,0.2)',
+        verdictColor: '#fde68a',
+        verdict: '🌀 Vibes Unclear',
+        gif: 'https://raw.githubusercontent.com/Lubo84/RetireWise-Images/main/gif.gif'
+      },
+      {
+        title: 'CERTIFIED ALLY',
+        emoji: '🤝',
+        sub: 'Straight, but make it fabulous. The community thanks you.',
+        gradient: ['#38bdf8','#34d399'],
+        verdictBg: 'rgba(56,189,248,0.2)',
+        verdictColor: '#7dd3fc',
+        verdict: '💙 Honorary Queer',
+        gif: 'https://raw.githubusercontent.com/Lubo84/RetireWise-Images/main/gif.gif'
+      },
+      {
+        title: 'BISEXUAL KING/QUEEN',
+        emoji: '💜',
+        sub: 'You contain multitudes. Science is stunned.',
+        gradient: ['#f472b6','#7c3aed','#60a5fa'],
+        verdictBg: 'rgba(124,58,237,0.2)',
+        verdictColor: '#c4b5fd',
+        verdict: '👑 Bisexual Royalty',
+        gif: 'https://raw.githubusercontent.com/Lubo84/RetireWise-Images/main/gif.gif'
+      }
     ];
 
-    function vibrate(pattern){ if (navigator.vibrate) navigator.vibrate(pattern); }
+    var MESSAGES = [
+      'Consulting the auntie network…',
+      'Measuring sparkle radius…',
+      'Cross-checking Gaga, Beyoncé & Kylie playlist…',
+      'Calibrating rainbow spectrum…',
+      'Verifying with a panel of drag queens…',
+      'Sampling fabulousness quotient…',
+      'Running totally-not-science™…',
+      'Counting how many times you said "yas"…',
+      'Analysing vibe signature…',
+      'Triangulating queer frequency…'
+    ];
 
-    function beep(ms, freq){
-      ms = ms || 120; freq = freq || 880;
+    /* ─── DOM ─────────────────────────────────────────────── */
+    var home      = id('home');
+    var scan      = id('scan');
+    var result    = id('result');
+    var startBtn  = id('startBtn');
+    var againBtn  = id('againBtn');
+    var shareBtn  = id('shareBtn');
+    var copyBtn   = id('copyBtn');
+    var beepBtn   = id('beepBtn');
+    var bar       = id('bar');
+    var scanMsg   = id('scanMsg');
+    var nameInput = id('nameInput');
+    var titleEl   = id('title-result');
+    var emojiEl   = id('resultEmoji');
+    var subEl     = id('resultSub');
+    var verdictEl = id('resultVerdict');
+    var endGif    = id('endGif');
+    var canvas    = id('shareCanvas');
+
+    function id(s) { return document.getElementById(s); }
+
+    var currentResult = null;
+    var ctx = null;
+    var beepTimer = null;
+    var blipNodes = [];
+
+    /* ─── Audio ───────────────────────────────────────────── */
+    function ensureAudio() {
+      try {
+        if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+        if (ctx.state === 'suspended') ctx.resume();
+      } catch(e) {}
+    }
+
+    function beep(ms, freq) {
+      ms   = ms   || 120;
+      freq = freq || 880;
       try {
         ensureAudio();
         var o = ctx.createOscillator();
         var g = ctx.createGain();
         o.type = 'sine';
         o.frequency.setValueAtTime(freq, ctx.currentTime);
-        o.connect(g); g.connect(ctx.destination);
+        o.connect(g);
+        g.connect(ctx.destination);
         g.gain.setValueAtTime(0.001, ctx.currentTime);
-        g.gain.exponentialRampToValueAtTime(0.2, ctx.currentTime + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.18, ctx.currentTime + 0.01);
         o.start();
-        setTimeout(function(){
-          g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.02);
-          o.stop(ctx.currentTime + 0.03);
+        setTimeout(function () {
+          g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.03);
+          o.stop(ctx.currentTime + 0.04);
         }, ms);
-      } catch(e) { /* ignore */ }
+      } catch(e) {}
     }
 
-    function show(el){ el.style.display = 'grid'; }
-    function hide(el){ el.style.display = 'none'; }
+    /* ─── Vibration ───────────────────────────────────────── */
+    function vibrate(pat) {
+      if (navigator.vibrate) navigator.vibrate(pat);
+    }
 
-    function confetti(count){
-      count = count || 80;
-      for(var i=0;i<count;i++){
-        var piece = document.createElement('i');
-        piece.className = 'confetti';
-        var size = 6 + Math.random()*8;
-        piece.style.width = size+'px';
-        piece.style.height = (size*1.4)+'px';
-        piece.style.left = (Math.random()*100)+'vw';
-        piece.style.background = 'hsl(' + (Math.random()*360) + ', 90%, 60%)';
-        piece.style.animation = 'drop ' + (3+Math.random()*2) + 's linear ' + (Math.random()*0.6) + 's forwards';
-        document.body.appendChild(piece);
-        setTimeout(function(p){ return function(){ p.remove(); }; }(piece), 6000);
+    /* ─── Display helpers ─────────────────────────────────── */
+    function show(el) { el.style.display = 'grid'; }
+    function hide(el) { el.style.display = 'none'; }
+
+    /* ─── Confetti ────────────────────────────────────────── */
+    function confetti(count) {
+      count = count || 90;
+      var colors = ['#f472b6','#a78bfa','#60a5fa','#34d399','#fbbf24','#fb7185','#38bdf8'];
+      for (var i = 0; i < count; i++) {
+        (function () {
+          var piece = document.createElement('i');
+          piece.className = 'confetti';
+          var size = 7 + Math.random() * 9;
+          piece.style.cssText = [
+            'width:' + size + 'px',
+            'height:' + (size * 1.5) + 'px',
+            'left:' + (Math.random() * 100) + 'vw',
+            'background:' + colors[Math.floor(Math.random() * colors.length)],
+            'animation:drop ' + (3.2 + Math.random() * 2.5) + 's linear ' + (Math.random() * 0.8) + 's forwards'
+          ].join(';');
+          document.body.appendChild(piece);
+          setTimeout(function () { piece.remove(); }, 7000);
+        })();
       }
     }
 
-    // ——— Beep loop synced to GIF (approx) ———
-    var beepTimer = null;
-    function getLoopMs(){
-      if (!endGif) return 2100;
+    /* ─── Radar blips ─────────────────────────────────────── */
+    function addBlips(radar) {
+      blipNodes.forEach(function(b) { b.remove(); });
+      blipNodes = [];
+      var positions = [
+        [62, 48], [30, 70], [75, 75], [48, 28], [20, 40],
+        [82, 35], [55, 85], [15, 58], [88, 62]
+      ];
+      positions.forEach(function(pos, i) {
+        var b = document.createElement('div');
+        b.className = 'blip';
+        var sz = 5 + Math.random() * 5;
+        b.style.cssText = 'width:'+sz+'px;height:'+sz+'px;left:'+pos[0]+'%;top:'+pos[1]+'%;'
+          + 'animation-delay:' + (i * 0.28) + 's;animation-duration:' + (2 + Math.random()) + 's';
+        radar.appendChild(b);
+        blipNodes.push(b);
+      });
+    }
+
+    /* ─── Beep loop ───────────────────────────────────────── */
+    function getLoopMs() {
       var v = parseInt(endGif.getAttribute('data-loop'), 10);
       return (isFinite(v) && v > 300) ? v : 2100;
     }
-    function startBeepLoop(){
+    function startBeepLoop() {
       stopBeepLoop();
       beep(90, 800);
-      beepTimer = setInterval(function(){ beep(90, 800); }, getLoopMs());
-      if (beepBtn) beepBtn.textContent = '🔇 Stop Beep';
+      beepTimer = setInterval(function () { beep(90, 800); }, getLoopMs());
+      beepBtn.textContent = '🔇 Stop';
     }
-    function stopBeepLoop(){
-      if (beepTimer){ clearInterval(beepTimer); beepTimer = null; }
-      if (beepBtn) beepBtn.textContent = '🔊 Beep';
+    function stopBeepLoop() {
+      if (beepTimer) { clearInterval(beepTimer); beepTimer = null; }
+      beepBtn.textContent = '🔊 Beep';
     }
 
-    function startScan(){
+    /* ─── Shareable Canvas Card ───────────────────────────── */
+    function drawCard(r, name) {
+      var ctx2 = canvas.getContext('2d');
+      var w = canvas.width, h = canvas.height;
+
+      // Background
+      var bg = ctx2.createLinearGradient(0, 0, w, h);
+      bg.addColorStop(0, '#0d0f1e');
+      bg.addColorStop(1, '#1a0e2e');
+      ctx2.fillStyle = bg;
+      ctx2.beginPath();
+      roundRect(ctx2, 0, 0, w, h, 24);
+      ctx2.fill();
+
+      // Gradient band
+      var band = ctx2.createLinearGradient(0, h * 0.55, w, h * 0.55);
+      var gStops = r.gradient;
+      if (gStops.length === 2) {
+        band.addColorStop(0, gStops[0]);
+        band.addColorStop(1, gStops[1]);
+      } else {
+        band.addColorStop(0,   gStops[0]);
+        band.addColorStop(0.5, gStops[1]);
+        band.addColorStop(1,   gStops[2]);
+      }
+      ctx2.fillStyle = band;
+      ctx2.beginPath();
+      roundRect(ctx2, 0, h * 0.55, w, h * 0.45, { bl: 24, br: 24, tl: 0, tr: 0 });
+      ctx2.fill();
+
+      // Frosted overlay
+      ctx2.fillStyle = 'rgba(0,0,0,0.30)';
+      ctx2.beginPath();
+      roundRect(ctx2, 0, h * 0.55, w, h * 0.45, { bl: 24, br: 24, tl: 0, tr: 0 });
+      ctx2.fill();
+
+      // Brand label
+      ctx2.font = '600 13px ui-sans-serif, system-ui, sans-serif';
+      ctx2.fillStyle = 'rgba(255,255,255,0.45)';
+      ctx2.textAlign = 'left';
+      ctx2.fillText('🌈 Gaydar — Totally Scientific™', 24, 36);
+
+      // Emoji
+      ctx2.font = '68px serif';
+      ctx2.textAlign = 'center';
+      ctx2.fillText(r.emoji, w / 2, 115);
+
+      // Name line
+      var nameLabel = name ? name.toUpperCase() + ', ' : '';
+      ctx2.font = 'bold 28px ui-sans-serif, system-ui, sans-serif';
+      ctx2.fillStyle = '#ffffff';
+      ctx2.textAlign = 'center';
+      // Fit text
+      var full = nameLabel + r.title;
+      var fs = 28;
+      ctx2.font = 'bold ' + fs + 'px ui-sans-serif, system-ui, sans-serif';
+      while (ctx2.measureText(full).width > w - 48 && fs > 14) {
+        fs -= 1;
+        ctx2.font = 'bold ' + fs + 'px ui-sans-serif, system-ui, sans-serif';
+      }
+      ctx2.fillText(full, w / 2, 170);
+
+      // Verdict pill
+      ctx2.font = '600 13px ui-sans-serif, system-ui, sans-serif';
+      ctx2.fillStyle = 'rgba(255,255,255,0.75)';
+      ctx2.fillText(r.verdict, w / 2, 202);
+
+      // Sub text
+      ctx2.font = '400 12px ui-sans-serif, system-ui, sans-serif';
+      ctx2.fillStyle = 'rgba(255,255,255,0.55)';
+      ctx2.fillText(r.sub.length > 72 ? r.sub.substring(0, 69) + '…' : r.sub, w / 2, 235);
+
+      // Footer rule
+      ctx2.strokeStyle = 'rgba(255,255,255,0.08)';
+      ctx2.lineWidth = 1;
+      ctx2.beginPath();
+      ctx2.moveTo(24, 258); ctx2.lineTo(w - 24, 258);
+      ctx2.stroke();
+      ctx2.font = '400 11px ui-sans-serif, system-ui, sans-serif';
+      ctx2.fillStyle = 'rgba(255,255,255,0.30)';
+      ctx2.fillText('gaydar.app — just a fun joke 💖', w / 2, 280);
+    }
+
+    function roundRect(c, x, y, w, h, r) {
+      if (typeof r === 'number') r = { tl: r, tr: r, br: r, bl: r };
+      c.moveTo(x + r.tl, y);
+      c.lineTo(x + w - r.tr, y);
+      c.quadraticCurveTo(x + w, y, x + w, y + r.tr);
+      c.lineTo(x + w, y + h - r.br);
+      c.quadraticCurveTo(x + w, y + h, x + w - r.br, y + h);
+      c.lineTo(x + r.bl, y + h);
+      c.quadraticCurveTo(x, y + h, x, y + h - r.bl);
+      c.lineTo(x, y + r.tl);
+      c.quadraticCurveTo(x, y, x + r.tl, y);
+      c.closePath();
+    }
+
+    /* ─── Download card ───────────────────────────────────── */
+    canvas.addEventListener('click', function () {
+      try {
+        var link = document.createElement('a');
+        link.download = 'my-gaydar-result.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      } catch(e) {}
+    });
+
+    /* ─── Scan flow ───────────────────────────────────────── */
+    function startScan() {
       ensureAudio();
       hide(home); hide(result); show(scan);
       vibrate([30, 40, 30]);
-      var idx = 0; var prog = 0;
-      scanMsg.textContent = messages[0];
-      bar.style.width = '0%';
 
-      var timer = null;
-      function step(){
-        prog = Math.min(100, prog + (100 / 12));
+      var radar = scan.querySelector('.radar');
+      addBlips(radar);
+
+      bar.style.width = '0%';
+      scanMsg.textContent = MESSAGES[0];
+
+      var idx = 0;
+      var prog = 0;
+      var steps = 12;
+      var step_size = 100 / steps;
+
+      function step() {
+        prog = Math.min(100, prog + step_size);
         bar.style.width = prog + '%';
-        scanMsg.textContent = messages[idx % messages.length];
-        beep(90, 500 + Math.random()*600);
+        scanMsg.textContent = MESSAGES[idx % MESSAGES.length];
+        beep(85, 420 + Math.random() * 550);
         idx++;
         if (prog >= 100) return finish();
-        timer = setTimeout(step, 420 + Math.random()*320);
+        setTimeout(step, 380 + Math.random() * 340);
       }
-      timer = setTimeout(step, 400);
+      setTimeout(step, 380);
 
-      function finish(){
-        hide(scan); show(result); confetti(90); vibrate([20,30,20,30,50]);
-        startBeepLoop();
-        try { if (document.startViewTransition) document.startViewTransition(function(){}); } catch(e){}
+      function finish() {
+        currentResult = RESULTS[Math.floor(Math.random() * RESULTS.length)];
+        showResult(currentResult);
       }
     }
 
-    function share(){
-      var text = 'Gaydar result: YOU ARE GAY 🏳️‍🌈 (a totally scientific joke)';
+    function showResult(r) {
+      var name = (nameInput.value || '').trim();
+      var namePrefix = name ? name.toUpperCase() + ', ' : '';
+
+      // Update DOM
+      emojiEl.textContent = r.emoji;
+      titleEl.textContent = namePrefix + r.title;
+      subEl.textContent   = r.sub;
+
+      // Gradient title
+      titleEl.style.background = 'linear-gradient(90deg,' + r.gradient.join(',') + ')';
+      titleEl.style['-webkit-background-clip'] = 'text';
+      titleEl.style['background-clip']          = 'text';
+      titleEl.style.color = 'transparent';
+
+      // Verdict pill
+      verdictEl.textContent = r.verdict;
+      verdictEl.style.background = r.verdictBg;
+      verdictEl.style.color      = r.verdictColor;
+      verdictEl.style.border     = '1px solid ' + r.verdictColor + '44';
+
+      // GIF
+      endGif.src = r.gif + '?t=' + Date.now();
+
+      // Canvas card
+      drawCard(r, name);
+
+      hide(scan);
+      show(result);
+      confetti(95);
+      vibrate([20, 30, 20, 30, 60]);
+      startBeepLoop();
+
+      try {
+        if (document.startViewTransition) document.startViewTransition(function () {});
+      } catch(e) {}
+    }
+
+    /* ─── Share / copy ────────────────────────────────────── */
+    function share() {
+      var r    = currentResult || RESULTS[0];
+      var name = (nameInput.value || '').trim();
+      var text = name
+        ? name + ', ' + r.title + ' ' + r.emoji + ' — Gaydar (a totally scientific joke)'
+        : r.title + ' ' + r.emoji + ' — Gaydar (a totally scientific joke)';
       if (navigator.share) {
-        navigator.share({ title: 'Gaydar', text: text, url: location.href }).catch(function(){});
+        navigator.share({ title: 'Gaydar', text: text, url: location.href }).catch(function () {});
       } else {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
+        try {
           navigator.clipboard.writeText(text + ' ' + location.href);
-        }
-        alert('Result copied. Paste it anywhere!');
+        } catch(e) {}
+        alert('Result copied! Paste it anywhere 💖');
       }
     }
 
-    function copy(){
-      var text = 'YOU ARE GAY 🏳️‍🌈 — from Gaydar (joke app)';
-      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text);
-      alert('Copied to clipboard.');
+    function copy() {
+      var r    = currentResult || RESULTS[0];
+      var name = (nameInput.value || '').trim();
+      var text = name
+        ? name + ', ' + r.title + ' ' + r.emoji + ' — from Gaydar (joke app)'
+        : r.title + ' ' + r.emoji + ' — from Gaydar (joke app)';
+      try { navigator.clipboard.writeText(text); } catch(e) {}
+      alert('Copied to clipboard 📋');
     }
 
-    if (startBtn) startBtn.addEventListener('click', startScan);
-    if (againBtn) againBtn.addEventListener('click', function(){ stopBeepLoop(); show(home); hide(result); });
-    if (shareBtn) shareBtn.addEventListener('click', share);
-    if (copyBtn) copyBtn.addEventListener('click', copy);
-    if (beepBtn) beepBtn.addEventListener('click', function(){ beepTimer ? stopBeepLoop() : startBeepLoop(); });
+    /* ─── Event listeners ─────────────────────────────────── */
+    startBtn.addEventListener('click', startScan);
+    nameInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') startScan();
+    });
+    againBtn.addEventListener('click', function () {
+      stopBeepLoop(); hide(result); show(home);
+    });
+    shareBtn.addEventListener('click', share);
+    copyBtn.addEventListener('click', copy);
+    beepBtn.addEventListener('click', function () {
+      beepTimer ? stopBeepLoop() : startBeepLoop();
+    });
+
+  })();
   </script>
 </body>
 </html>
